@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Courses{% endblock %}
+
+{% block content %}
+<!-- Courses Header -->
+<div class="mb-8">
+  <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-cyan-50 rounded-3xl p-8 border border-blue-100/50 shadow-sm">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Explore Courses 📚
+        </h1>
+        <p class="text-gray-600 mt-2 text-lg">Discover amazing learning opportunities from our community</p>
+      </div>
+      {% if user.is_teacher %}
+      <a href="{% url 'create_course' %}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+        <i class="fas fa-plus mr-2"></i>
+        Create New Course
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if courses %}
+<!-- Course Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+  {% for course in courses %}
+  <div class="group bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300">
+    <!-- Course Header -->
+    <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 px-6 py-6">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+            {{ course.title }}
+          </h3>
+          <div class="flex items-center space-x-4 text-sm text-gray-600">
+            <div class="flex items-center">
+              <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-full flex items-center justify-center mr-2">
+                <i class="fas fa-user text-white text-xs"></i>
+              </div>
+              <span>{{ course.teacher.get_full_name|default:course.teacher.username }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="p-2 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-2xl shadow-lg">
+          <i class="fas fa-book text-white text-sm"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Course Content -->
+    <div class="px-6 py-6">
+      <p class="text-gray-700 leading-relaxed mb-6 line-clamp-3">
+        {{ course.description|truncatewords:25 }}
+      </p>
+      
+      <!-- Course Stats -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-users text-emerald-500 text-sm"></i>
+            <div>
+              <p class="text-xs text-emerald-600 font-medium">Students</p>
+              <p class="text-lg font-bold text-emerald-700">{{ course.get_student_count }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl border border-purple-100">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-calendar text-purple-500 text-sm"></i>
+            <div>
+              <p class="text-xs text-purple-600 font-medium">Created</p>
+              <p class="text-sm font-semibold text-purple-700">{{ course.created_at|date:"M d" }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Action Button -->
+      <a href="{% url 'course_detail' course.id %}" class="block w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-center">
+        <i class="fas fa-arrow-right mr-2"></i>
+        Explore Course
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty State -->
+<div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+  <div class="px-8 py-16 text-center">
+    <div class="w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mx-auto mb-8 flex items-center justify-center">
+      <i class="fas fa-book text-blue-400 text-5xl"></i>
+    </div>
+    
+    <h3 class="text-2xl font-bold text-gray-800 mb-4">No Courses Available Yet</h3>
+    
+    {% if user.is_teacher %}
+    <p class="text-gray-600 mb-8 max-w-md mx-auto">
+      You're ready to share your knowledge! Create your first course and start building your learning community.
+    </p>
+    
+    <a href="{% url 'create_course' %}" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <i class="fas fa-plus mr-3"></i>
+      Create Your First Course
+    </a>
+    
+    {% else %}
+    <p class="text-gray-600 mb-8 max-w-md mx-auto">
+      No courses are currently available for enrollment. Check back soon for new learning opportunities!
+    </p>
+    
+    <div class="flex items-center justify-center space-x-6 text-sm text-gray-400">
+      <div class="flex items-center">
+        <i class="fas fa-clock mr-2 text-blue-500"></i>
+        <span>New courses coming soon</span>
+      </div>
+      <div class="flex items-center">
+        <i class="fas fa-bell mr-2 text-emerald-500"></i>
+        <span>Stay tuned for updates</span>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

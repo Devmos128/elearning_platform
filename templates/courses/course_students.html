@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Students - {{ course.title }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="mb-8">
+  <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-cyan-50 rounded-3xl p-8 border border-blue-100/50 shadow-sm">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Course Students 👥
+        </h1>
+        <p class="text-gray-600 mt-2 text-lg">{{ course.title }} - {{ students|length }} enrolled students</p>
+      </div>
+      <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-3xl flex items-center justify-center shadow-lg">
+        <i class="fas fa-users text-white text-xl"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Students List -->
+<div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+  <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 px-8 py-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-2xl shadow-lg">
+          <i class="fas fa-users text-white text-sm"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800">Enrolled Students</h3>
+      </div>
+      <span class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium">{{ students|length }} students</span>
+    </div>
+  </div>
+  
+  <div class="px-8 py-8">
+    {% if students %}
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {% for student in students %}
+      <div class="group bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-100 hover:border-emerald-200 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+        <div class="flex items-start space-x-4">
+          {% if student.profile_picture %}
+          <img
+            src="{{ student.profile_picture.url }}"
+            class="w-14 h-14 rounded-2xl object-cover shadow-md ring-2 ring-gray-200 group-hover:ring-emerald-200 transition-all duration-300"
+          />
+          {% else %}
+          <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-pink-400 rounded-2xl flex items-center justify-center shadow-md">
+            <i class="fas fa-user text-white text-lg"></i>
+          </div>
+          {% endif %}
+          
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-gray-800 mb-1 truncate group-hover:text-emerald-600 transition-colors">
+              {{ student.get_full_name|default:student.username }}
+            </h4>
+            <p class="text-gray-500 text-sm mb-3">@{{ student.username }}</p>
+            
+            <div class="flex items-center justify-between">
+              <div class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-full border border-emerald-100">
+                <i class="fas fa-graduation-cap text-emerald-500 text-xs mr-1"></i>
+                <span class="text-emerald-700 font-medium text-xs">Student</span>
+              </div>
+              
+              <div class="flex items-center space-x-2">
+                <a 
+                  href="{% url 'user_profile' student.username %}" 
+                  class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-medium rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                >
+                  <i class="fas fa-eye mr-1"></i>
+                  View
+                </a>
+                
+                <a 
+                  href="{% url 'remove_student_from_course' course.id student.id %}" 
+                  class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-medium rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  onclick="return confirm('Are you sure you want to remove {{ student.get_full_name|default:student.username }} from this course?')"
+                >
+                  <i class="fas fa-user-minus mr-1"></i>
+                  Remove
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16">
+      <div class="w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mx-auto mb-8 flex items-center justify-center">
+        <i class="fas fa-users text-gray-400 text-5xl"></i>
+      </div>
+      
+      <h3 class="text-2xl font-bold text-gray-800 mb-4">No Students Enrolled Yet</h3>
+      <p class="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+        Students will appear here once they enroll in your course. Share your course with potential students to start building your learning community!
+      </p>
+      
+      <div class="flex items-center justify-center space-x-6 text-sm text-gray-400">
+        <div class="flex items-center">
+          <i class="fas fa-share mr-2 text-blue-500"></i>
+          <span>Share course link</span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-bell mr-2 text-emerald-500"></i>
+          <span>Notify students</span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-users mr-2 text-purple-500"></i>
+          <span>Build community</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Course Info Footer -->
+<div class="mt-8 bg-white/60 backdrop-blur-sm rounded-3xl shadow-lg border border-white/20 p-6">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-2xl flex items-center justify-center shadow-md">
+        <i class="fas fa-book text-white text-lg"></i>
+      </div>
+      <div>
+        <h4 class="font-semibold text-gray-800">{{ course.title }}</h4>
+        <p class="text-gray-600 text-sm">by {{ course.teacher.get_full_name|default:course.teacher.username }}</p>
+      </div>
+    </div>
+    
+    <a 
+      href="{% url 'course_detail' course.id %}" 
+      class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+    >
+      <i class="fas fa-arrow-left mr-2"></i>
+      Back to Course
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Course{% endblock %}
+
+{% block content %}
+<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl">
+        <i class="fas fa-plus text-white text-2xl"></i>
+      </div>
+      <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+        Create New Course
+      </h2>
+      <p class="text-gray-600 mt-3 text-lg">Share your knowledge and inspire learners worldwide</p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+      <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 px-8 py-6">
+        <div class="flex items-center space-x-3">
+          <div class="p-2 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-2xl shadow-lg">
+            <i class="fas fa-book text-white text-sm"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800">Course Details</h3>
+        </div>
+      </div>
+      
+      <div class="px-8 py-10">
+        <form method="post" class="space-y-8">
+          {% csrf_token %}
+
+          <!-- Course Title -->
+          <div class="group">
+            <label for="id_title" class="block text-sm font-medium text-gray-700 mb-3">
+              <i class="fas fa-heading mr-2 text-blue-500"></i>Course Title *
+            </label>
+            <input
+              type="text"
+              name="title"
+              class="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all duration-300 group-hover:border-blue-300"
+              id="id_title"
+              placeholder="Enter an engaging course title..."
+              required
+            />
+            <p class="text-xs text-gray-500 mt-2">Choose a clear, descriptive title that captures your course content</p>
+          </div>
+
+          <!-- Course Description -->
+          <div class="group">
+            <label for="id_description" class="block text-sm font-medium text-gray-700 mb-3">
+              <i class="fas fa-align-left mr-2 text-blue-500"></i>Course Description *
+            </label>
+            <textarea
+              name="description"
+              rows="6"
+              class="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all duration-300 group-hover:border-blue-300 resize-none"
+              id="id_description"
+              placeholder="Describe what students will learn, the course structure, prerequisites, and what makes this course special..."
+              required
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-2">Help students understand what they'll gain from your course</p>
+          </div>
+
+          <!-- Course Guidelines -->
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
+              Tips for a Great Course
+            </h4>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-0.5"></i>
+                Use clear, specific language in your title and description
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-0.5"></i>
+                Outline what students will learn and achieve
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-0.5"></i>
+                Mention any prerequisites or required knowledge
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-0.5"></i>
+                Keep your description engaging and informative
+              </li>
+            </ul>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-6">
+            <a
+              href="{% url 'course_list' %}"
+              class="flex-1 sm:flex-initial px-8 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-2xl transition-all duration-300 text-center"
+            >
+              <i class="fas fa-arrow-left mr-2"></i>
+              Cancel
+            </a>
+            <button
+              type="submit"
+              class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold py-3 px-8 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+            >
+              <i class="fas fa-rocket"></i>
+              <span>Create Course</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Footer Note -->
+    <div class="text-center mt-8">
+      <p class="text-gray-500 text-sm">
+        After creating your course, you can add materials, assignments, and manage enrollments
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

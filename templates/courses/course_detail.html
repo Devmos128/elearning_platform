@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Course Header -->
+    <div class="mb-8">
+      <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-cyan-50 rounded-3xl p-8 border border-blue-100/50 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3">
+              {{ course.title }}
+            </h1>
+            <p class="text-gray-600 text-lg mb-4">
+              by <span class="font-semibold text-blue-600">{{ course.teacher.get_full_name|default:course.teacher.username }}</span>
+            </p>
+            <p class="text-gray-700 leading-relaxed mb-6">{{ course.description }}</p>
+            
+            <!-- Course Stats -->
+            <div class="flex flex-wrap gap-4">
+              <div class="flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl border border-blue-200">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-full flex items-center justify-center mr-3">
+                  <i class="fas fa-users text-white text-sm"></i>
+                </div>
+                <span class="font-semibold text-blue-700">{{ course.get_student_count }} students</span>
+              </div>
+              <div class="flex items-center px-4 py-2 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-2xl border border-emerald-200">
+                <div class="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-full flex items-center justify-center mr-3">
+                  <i class="fas fa-file text-white text-sm"></i>
+                </div>
+                <span class="font-semibold text-emerald-700">{{ course.materials.count }} materials</span>
+              </div>
+              <div class="flex items-center px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl border border-purple-200">
+                <div class="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mr-3">
+                  <i class="fas fa-tasks text-white text-sm"></i>
+                </div>
+                <span class="font-semibold text-purple-700">{{ course.assignments.count }} assignments</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Enrollment Actions -->
+          <div class="ml-6">
+            {% if user.is_student and not is_enrolled %}
+            <a href="{% url 'enroll_course' course.id %}" 
+               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <i class="fas fa-plus mr-2"></i> Enroll
+            </a>
+            {% elif user.is_student and is_enrolled %}
+            <a href="{% url 'leave_course' course.id %}" 
+               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+               onclick="return confirm('Are you sure you want to leave this course?')">
+              <i class="fas fa-minus mr-2"></i> Leave Course
+            </a>
+            {% endif %}
+            
+            <!-- Course Creator Actions -->
+            {% if user.is_teacher and course.teacher == user %}
+            <div class="mt-4">
+              <a href="{% url 'delete_course' course.id %}" 
+                 class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                 onclick="return confirm('Are you sure you want to delete this course? This action cannot be undone and all enrolled students will be notified.')">
+                <i class="fas fa-trash mr-2"></i> Delete Course
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-8 space-y-8">
+        <!-- Course Materials -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+          <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 px-8 py-6 border-b border-emerald-100/50">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-2xl shadow-lg">
+                  <i class="fas fa-file text-white text-sm"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800">Course Materials</h3>
+              </div>
+              {% if user.is_teacher and course.teacher == user %}
+              <a href="{% url 'upload_material' course.id %}" 
+                 class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-sm">
+                <i class="fas fa-upload mr-2"></i> Upload Material
+              </a>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="px-8 py-8">
+            {% if materials %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {% for material in materials %}
+              <div class="group bg-gradient-to-br from-gray-50 to-gray-50/50 rounded-2xl p-6 border border-gray-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex-1">
+                    <h4 class="font-bold text-gray-800 mb-2 group-hover:text-emerald-600 transition-colors">
+                      {{ material.title }}
+                    </h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                      {{ material.description|truncatewords:15 }}
+                    </p>
+                  </div>
+                  <div class="ml-4">
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-2xl flex items-center justify-center shadow-lg">
+                      <i class="fas fa-file-alt text-white text-sm"></i>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                  <span class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 rounded-xl text-xs font-medium border border-emerald-200">
+                    {{ material.get_material_type_display }}
+                  </span>
+                  <a href="{{ material.file.url }}" 
+                     class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                     target="_blank">
+                    <i class="fas fa-download mr-2"></i> Download
+                  </a>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+              <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <i class="fas fa-file text-gray-400 text-3xl"></i>
+              </div>
+              <h4 class="text-xl font-bold text-gray-800 mb-2">No Materials Yet</h4>
+              <p class="text-gray-600 mb-6">Course materials will appear here once uploaded by the instructor.</p>
+              {% if user.is_teacher and course.teacher == user %}
+              <a href="{% url 'upload_material' course.id %}" 
+                 class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                <i class="fas fa-upload mr-2"></i> Upload First Material
+              </a>
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Assignments -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+          <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-8 py-6 border-b border-purple-100/50">
+            <div class="flex items-center space-x-3">
+              <div class="p-2 bg-gradient-to-br from-purple-400 to-pink-400 rounded-2xl shadow-lg">
+                <i class="fas fa-tasks text-white text-sm"></i>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800">Assignments</h3>
+            </div>
+          </div>
+          
+          <div class="px-8 py-8">
+            {% if assignments %}
+            <div class="space-y-6">
+              {% for assignment in assignments %}
+              <div class="group bg-gradient-to-br from-gray-50 to-gray-50/50 rounded-2xl p-6 border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex-1">
+                    <h4 class="font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">
+                      {{ assignment.title }}
+                    </h4>
+                    <p class="text-gray-600 leading-relaxed mb-4">{{ assignment.description }}</p>
+                  </div>
+                  <div class="ml-4">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-2xl flex items-center justify-center shadow-lg">
+                      <i class="fas fa-calendar-alt text-white text-sm"></i>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center space-x-3">
+                    <span class="text-sm text-gray-500">
+                      <i class="fas fa-clock mr-1"></i>
+                      Due: {{ assignment.due_date|date:"M d, Y H:i" }}
+                    </span>
+                  </div>
+                  {% if assignment.is_overdue %}
+                  <span class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-red-100 to-pink-100 text-red-700 rounded-xl text-xs font-medium border border-red-200">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> Overdue
+                  </span>
+                  {% else %}
+                  <span class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-700 rounded-xl text-xs font-medium border border-yellow-200">
+                    <i class="fas fa-clock mr-1"></i> Active
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+              <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <i class="fas fa-tasks text-gray-400 text-3xl"></i>
+              </div>
+              <h4 class="text-xl font-bold text-gray-800 mb-2">No Assignments Yet</h4>
+              <p class="text-gray-600">Assignments will appear here once created by the instructor.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="lg:col-span-4 space-y-8">
+        <!-- Course Actions -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 px-6 py-6 border-b border-blue-100/50">
+            <div class="flex items-center space-x-3">
+              <div class="p-2 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-2xl shadow-lg">
+                <i class="fas fa-cogs text-white text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-gray-800">Course Actions</h3>
+            </div>
+          </div>
+          
+          <div class="px-6 py-6 space-y-4">
+            {% if user.is_teacher and course.teacher == user %}
+            <a href="{% url 'course_students' course.id %}" 
+               class="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <i class="fas fa-users mr-3"></i> View Students
+            </a>
+            <a href="{% url 'upload_material' course.id %}" 
+               class="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <i class="fas fa-upload mr-3"></i> Upload Material
+            </a>
+            <a href="{% url 'delete_course' course.id %}" 
+               class="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+               onclick="return confirm('Are you sure you want to delete this course? This action cannot be undone and all enrolled students will be notified.')">
+              <i class="fas fa-trash mr-3"></i> Delete Course
+            </a>
+            {% endif %}
+            
+            {% if user.is_student and is_enrolled %}
+            <a href="{% url 'leave_feedback' course.id %}" 
+               class="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <i class="fas fa-star mr-3"></i> Leave Feedback
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Course Feedback -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+          <div class="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 px-6 py-6 border-b border-yellow-100/50">
+            <div class="flex items-center space-x-3">
+              <div class="p-2 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-2xl shadow-lg">
+                <i class="fas fa-star text-white text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-gray-800">Course Feedback</h3>
+            </div>
+          </div>
+          
+          <div class="px-6 py-6">
+            {% if feedback %}
+            <div class="space-y-6">
+              {% for fb in feedback %}
+              <div class="bg-gradient-to-br from-gray-50 to-gray-50/50 rounded-2xl p-4 border border-gray-200">
+                <div class="flex justify-between items-start mb-3">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-white text-xs"></i>
+                    </div>
+                    <strong class="text-gray-800">{{ fb.student.get_full_name|default:fb.student.username }}</strong>
+                  </div>
+                  <div class="flex">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= fb.rating %}
+                      <i class="fas fa-star text-yellow-400 text-sm"></i>
+                      {% else %}
+                      <i class="far fa-star text-gray-300 text-sm"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+                <p class="text-gray-600 text-sm leading-relaxed mb-3">{{ fb.comment }}</p>
+                <div class="flex items-center text-xs text-gray-500">
+                  <i class="fas fa-calendar mr-1"></i>
+                  {{ fb.created_at|date:"M d, Y" }}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+              <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <i class="fas fa-star text-gray-400 text-xl"></i>
+              </div>
+              <h4 class="text-lg font-bold text-gray-800 mb-2">No Feedback Yet</h4>
+              <p class="text-gray-600 text-sm">Be the first to share your thoughts about this course!</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

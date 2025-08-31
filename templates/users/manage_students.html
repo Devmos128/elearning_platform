@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Students{% endblock %}
+
+{% block content %}
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-cyan-50 rounded-3xl p-8 border border-blue-100/50 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Student Management 👥
+            </h1>
+            <p class="text-gray-600 mt-2 text-lg">Manage students enrolled in your courses</p>
+          </div>
+          <div class="flex items-center space-x-4">
+            <a href="{% url 'notifications' %}" class="relative inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <i class="fas fa-bell mr-2"></i>
+              Notifications
+              {% if unread_notifications_count > 0 %}
+              <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center">
+                {{ unread_notifications_count }}
+              </span>
+              {% endif %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if enrolled_students %}
+    <!-- Students List -->
+    <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+      <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 px-8 py-6 border-b border-emerald-100/50">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-2xl shadow-lg">
+              <i class="fas fa-users text-white text-sm"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Enrolled Students ({{ enrolled_students.count }})</h3>
+          </div>
+        </div>
+      </div>
+      
+      <div class="px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {% for student in enrolled_students %}
+          <div class="group bg-gradient-to-br from-gray-50 to-gray-50/50 rounded-2xl p-6 border border-gray-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+            <!-- Student Header -->
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-2xl flex items-center justify-center shadow-lg">
+                  <i class="fas fa-user text-white text-lg"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-gray-800 group-hover:text-emerald-600 transition-colors">
+                    {{ student.get_full_name|default:student.username }}
+                  </h4>
+                  <p class="text-sm text-gray-600">@{{ student.username }}</p>
+                </div>
+              </div>
+              {% if student.is_blocked %}
+              <div class="flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-xl text-xs font-medium border border-red-200">
+                <i class="fas fa-ban mr-1"></i> Blocked
+              </div>
+              {% endif %}
+            </div>
+            
+            <!-- Student Info -->
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-envelope mr-2 text-blue-500"></i>
+                {{ student.email }}
+              </div>
+              {% if student.phone_number %}
+              <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-phone mr-2 text-green-500"></i>
+                {{ student.phone_number }}
+              </div>
+              {% endif %}
+              <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-calendar mr-2 text-purple-500"></i>
+                Joined {{ student.date_joined|date:"M Y" }}
+              </div>
+            </div>
+            
+            <!-- Enrolled Courses -->
+            <div class="mb-6">
+              <h5 class="text-sm font-semibold text-gray-700 mb-3">Enrolled in Your Courses:</h5>
+              <div class="space-y-2">
+                {% for course in teacher_courses %}
+                  {% if student in course.students.all %}
+                  <div class="flex items-center justify-between p-2 bg-blue-50 rounded-xl">
+                    <span class="text-sm text-blue-700">{{ course.title }}</span>
+                    <a href="{% url 'remove_student_from_course' course.id student.id %}" 
+                       class="text-red-500 hover:text-red-700 text-sm font-medium"
+                       onclick="return confirm('Are you sure you want to remove {{ student.get_full_name|default:student.username }} from {{ course.title }}?')">
+                      <i class="fas fa-times"></i>
+                    </a>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex space-x-3">
+              {% if student.is_blocked %}
+                {% if student.blocked_by == request.user %}
+                <a href="{% url 'unblock_student' student.id %}" 
+                   class="flex-1 flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                   onclick="return confirm('Are you sure you want to unblock {{ student.get_full_name|default:student.username }}?')">
+                  <i class="fas fa-unlock mr-2"></i> Unblock
+                </a>
+                {% else %}
+                <span class="flex-1 flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-500 rounded-xl text-sm font-medium">
+                  <i class="fas fa-ban mr-2"></i> Blocked by {{ student.blocked_by.get_full_name|default:student.blocked_by.username }}
+                </span>
+                {% endif %}
+              {% else %}
+              <a href="{% url 'block_student' student.id %}" 
+                 class="flex-1 flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                 onclick="return confirm('Are you sure you want to block {{ student.get_full_name|default:student.username }}? This will prevent them from accessing the system.')">
+                <i class="fas fa-ban mr-2"></i> Block
+              </a>
+              {% endif %}
+              
+              <a href="{% url 'user_profile' student.username %}" 
+                 class="flex-1 flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                <i class="fas fa-eye mr-2"></i> Profile
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+      <div class="px-8 py-16 text-center">
+        <div class="w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mx-auto mb-8 flex items-center justify-center">
+          <i class="fas fa-users text-gray-400 text-5xl"></i>
+        </div>
+        
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">No Students Enrolled Yet</h3>
+        <p class="text-gray-600 mb-8 max-w-md mx-auto">
+          Students will appear here once they enroll in your courses. Share your course links with potential students to start building your learning community!
+        </p>
+        
+        <div class="flex items-center justify-center space-x-6 text-sm text-gray-400">
+          <div class="flex items-center">
+            <i class="fas fa-share mr-2 text-blue-500"></i>
+            <span>Share course links</span>
+          </div>
+          <div class="flex items-center">
+            <i class="fas fa-bell mr-2 text-emerald-500"></i>
+            <span>Get enrollment notifications</span>
+          </div>
+          <div class="flex items-center">
+            <i class="fas fa-users mr-2 text-purple-500"></i>
+            <span>Build community</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

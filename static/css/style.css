@@ -1,0 +1,132 @@
+/* Custom styles for eLearning Platform */
+
+.navbar-brand {
+  font-weight: bold;
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 10px;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.status-update {
+  border-left: 4px solid #007bff;
+  padding-left: 15px;
+  margin-bottom: 15px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.chat-messages {
+  height: 400px;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.message {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+.message.sent {
+  background-color: #007bff;
+  color: white;
+  margin-left: auto;
+}
+
+.message.received {
+  background-color: #e9ecef;
+  margin-right: auto;
+}
+
+.btn {
+  border-radius: 5px;
+}
+
+.form-control {
+  border-radius: 5px;
+}
+
+.badge {
+  border-radius: 15px;
+}
+
+/* Profile picture styles */
+.profile-picture {
+  border: 3px solid #007bff;
+}
+
+/* Course card hover effects */
+.course-card:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}
+
+/* Chat room styles */
+.chat-container {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .message {
+    max-width: 95%;
+  }
+
+  .chat-messages {
+    height: 300px;
+  }
+}
+
+/* Loading animation */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom scrollbar */
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
